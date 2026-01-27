@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Springsmas 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(180deg,
+        #4A3F6B 0%,
+        #7B5E7B 15%,
+        #C97B84 30%,
+        #F4A460 50%,
+        #FFB6C1 70%,
+        #F5DEB3 100%
+      );
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Mountain Silhouette */
+    .mountains {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .mountains svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Palm Trees */
+    .palm-tree {
+      position: fixed;
+      bottom: 50px;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .palm-left {
+      left: -20px;
+    }
+
+    .palm-right {
+      right: -20px;
+      transform: scaleX(-1);
+    }
+
+    @media (max-width: 768px) {
+      .palm-tree {
+        opacity: 0.3;
+        transform: scale(0.6);
+      }
+      .palm-left {
+        left: -60px;
+        bottom: 0;
+      }
+      .palm-right {
+        right: -60px;
+        bottom: 0;
+        transform: scaleX(-1) scale(0.6);
+      }
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      padding-bottom: 220px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 30px 0 40px;
+    }
+
+    .title {
+      font-family: 'Pacifico', cursive;
+      font-size: 4rem;
+      color: #fff;
+      text-shadow:
+        3px 3px 0 #C97B84,
+        6px 6px 15px rgba(74, 63, 107, 0.4);
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+      font-weight: 500;
+    }
+
+    /* Palm Frond Decorations */
+    .palm-fronds {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .frond {
+      color: #228B22;
+      font-size: 2rem;
+      opacity: 0.8;
+    }
+
+    /* Pool Container */
+    .pool-container {
+      background: linear-gradient(180deg, #7DD3E8 0%, #5BC0DE 100%);
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.2),
+        inset 0 2px 10px rgba(255,255,255,0.3);
+      border: 8px solid #F5F5DC;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pool-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(255,255,255,0.15) 0%, transparent 40%);
+      pointer-events: none;
+    }
+
+    .pool-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Section Headers */
+    .section-header {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.8rem;
+      color: #4A3F6B;
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+    }
+
+    /* Leaderboard */
+    .leaderboard {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .podium-item {
+      background: rgba(255,255,255,0.95);
+      border-radius: 15px;
+      padding: 20px 30px;
+      text-align: center;
+      min-width: 200px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .podium-item:hover {
+      transform: translateY(-5px);
+    }
+
+    .podium-item.gold {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      order: 0;
+    }
+
+    .podium-item.silver {
+      background: linear-gradient(135deg, #E8E8E8 0%, #C0C0C0 100%);
+      order: 1;
+    }
+
+    .podium-item.bronze {
+      background: linear-gradient(135deg, #DEB887 0%, #CD853F 100%);
+      order: 2;
+    }
+
+    .podium-rank {
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+
+    .podium-weekend {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #4A3F6B;
+      margin-bottom: 5px;
+    }
+
+    .podium-score {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .podium-breakdown {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #4A3F6B;
+      font-weight: 500;
+    }
+
+    .legend-box {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 2px solid rgba(0,0,0,0.2);
+    }
+
+    .legend-box.green { background: #4CAF50; }
+    .legend-box.yellow { background: #FFC107; }
+    .legend-box.red { background: #f44336; }
+    .legend-box.empty { background: #fff; }
+
+    /* Grid Table */
+    .grid-wrapper {
+      overflow-x: auto;
+      background: rgba(255,255,255,0.95);
+      border-radius: 15px;
+      padding: 15px;
+    }
+
+    .availability-grid {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    .availability-grid th,
+    .availability-grid td {
+      padding: 8px 4px;
+      text-align: center;
+      border: 1px solid #e0e0e0;
+    }
+
+    .availability-grid th {
+      background: #4A3F6B;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.75rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .availability-grid th.name-header {
+      text-align: left;
+      padding-left: 15px;
+      min-width: 100px;
+    }
+
+    .availability-grid th.weekend-header {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      padding: 10px 5px;
+      min-width: 45px;
+      height: 120px;
+      font-size: 0.7rem;
+    }
+
+    .availability-grid td.name-cell {
+      text-align: left;
+      padding-left: 15px;
+      font-weight: 600;
+      color: #4A3F6B;
+      background: #f8f9fa;
+      white-space: nowrap;
+    }
+
+    .availability-grid td.status-cell {
+      padding: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .availability-grid td.status-cell:hover {
+      background: rgba(74, 63, 107, 0.1);
+    }
+
+    .status-box {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      margin: 0 auto;
+      border: 2px solid rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .status-box.empty {
+      background: #fff;
+    }
+
+    .status-box.yes {
+      background: #4CAF50;
+      border-color: #388E3C;
+    }
+
+    .status-box.maybe {
+      background: #FFC107;
+      border-color: #FFA000;
+    }
+
+    .status-box.no {
+      background: #f44336;
+      border-color: #D32F2F;
+    }
+
+    /* Weekend Score Row */
+    .availability-grid tr.score-row td {
+      background: #4A3F6B;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border-color: #3d3555;
+    }
+
+    .availability-grid tr.score-row td.name-cell {
+      background: #4A3F6B;
+      color: #fff;
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #4A3F6B;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #4A3F6B;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Status indicator */
+    .save-indicator {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #4CAF50;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 500;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .save-indicator.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .save-indicator.error {
+      background: #f44336;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .title {
+        font-size: 2.5rem;
+      }
+
+      .pool-container {
+        padding: 15px 10px;
+        border-width: 5px;
+      }
+
+      .podium-item {
+        min-width: 150px;
+        padding: 15px 20px;
+      }
+
+      .legend {
+        gap: 15px;
+      }
+
+      .legend-item {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Mountain Silhouette -->
+  <div class="mountains">
+    <svg viewBox="0 0 1440 200" preserveAspectRatio="none">
+      <path fill="#2d2540" d="M0,200 L0,120 L100,80 L200,110 L300,60 L400,90 L500,40 L600,70 L700,30 L800,80 L900,50 L1000,90 L1100,45 L1200,85 L1300,55 L1400,100 L1440,70 L1440,200 Z"/>
+      <path fill="#3d3555" d="M0,200 L0,140 L150,100 L300,130 L450,85 L600,115 L750,75 L900,110 L1050,80 L1200,120 L1350,90 L1440,130 L1440,200 Z"/>
+    </svg>
+  </div>
+
+  <!-- Palm Trees -->
+  <div class="palm-tree palm-left">
+    <svg width="150" height="300" viewBox="0 0 150 300">
+      <path d="M75,300 L75,120" stroke="#1a4a1a" stroke-width="12" stroke-linecap="round"/>
+      <path d="M75,130 Q40,100 10,110" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,125 Q50,80 20,60" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,120 Q75,70 60,30" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,120 Q100,70 90,30" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,125 Q100,80 130,60" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,130 Q110,100 140,110" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <ellipse cx="75" cy="120" rx="8" ry="12" fill="#8B4513"/>
+    </svg>
+  </div>
+
+  <div class="palm-tree palm-right">
+    <svg width="150" height="300" viewBox="0 0 150 300">
+      <path d="M75,300 L75,120" stroke="#1a4a1a" stroke-width="12" stroke-linecap="round"/>
+      <path d="M75,130 Q40,100 10,110" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,125 Q50,80 20,60" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,120 Q75,70 60,30" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,120 Q100,70 90,30" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,125 Q100,80 130,60" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M75,130 Q110,100 140,110" stroke="#228B22" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <ellipse cx="75" cy="120" rx="8" ry="12" fill="#8B4513"/>
+    </svg>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="title">Springsmas 2026</h1>
+      <p class="subtitle">Click cells to toggle: Can Make It / Maybe / Can't Make It</p>
+      <div class="palm-fronds">
+        <span class="frond">🌴</span>
+        <span class="frond">☀️</span>
+        <span class="frond">🌴</span>
+      </div>
+    </header>
+
+    <!-- Leaderboard -->
+    <div class="pool-container">
+      <div class="pool-content">
+        <h2 class="section-header">Top 3 Weekends</h2>
+        <div id="leaderboard" class="leaderboard">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            Loading...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Availability Grid -->
+    <div class="pool-container">
+      <div class="pool-content">
+        <h2 class="section-header">Group Availability</h2>
+
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-box green"></div>
+            <span>Can Make It (2 pts)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box yellow"></div>
+            <span>Maybe (1 pt)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box red"></div>
+            <span>Can't Make It (0 pts)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box empty"></div>
+            <span>Not Set</span>
+          </div>
+        </div>
+
+        <div class="grid-wrapper">
+          <div id="gridArea">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              Loading availability...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Indicator -->
+  <div id="saveIndicator" class="save-indicator">Saved!</div>
+
+  <script>
+    // Configuration
+    const PARTICIPANTS = ['GGabe', 'Korn', 'Cardo', 'JZ', 'H', 'Rob', 'Roy', 'Steve', 'Tim'];
+    const WEEKENDS = [
+      'March 7-9',
+      'March 14-16',
+      'March 21-23',
+      'March 28-30',
+      'April 4-6',
+      'April 11-13',
+      'April 18-20',
+      'April 25-27',
+      'May 2-4',
+      'May 9-11',
+      'May 16-18',
+      'May 23-25',
+      'May 30 - June 1',
+      'June 6-8',
+      'June 13-15',
+      'June 20-22'
+    ];
+
+    // Status values and their scores
+    const STATUS = {
+      EMPTY: '',
+      YES: 'yes',
+      MAYBE: 'maybe',
+      NO: 'no'
+    };
+
+    const SCORES = {
+      [STATUS.YES]: 2,
+      [STATUS.MAYBE]: 1,
+      [STATUS.NO]: 0,
+      [STATUS.EMPTY]: 0
+    };
+
+    // State
+    let allAvailability = {};
+
+    // DOM Elements
+    const gridArea = document.getElementById('gridArea');
+    const leaderboard = document.getElementById('leaderboard');
+    const saveIndicator = document.getElementById('saveIndicator');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAllAvailability();
+    });
+
+    // Load all availability
+    async function loadAllAvailability() {
+      try {
+        const response = await fetch('/api/availability');
+        allAvailability = await response.json();
+        renderGrid();
+        renderLeaderboard();
+      } catch (error) {
+        console.error('Load error:', error);
+        gridArea.innerHTML = `
+          <div class="loading" style="color: #f44336;">
+            Error loading data. Please refresh the page.
+          </div>
+        `;
+      }
+    }
+
+    // Get status for a person/weekend
+    function getStatus(person, weekend) {
+      if (!allAvailability[person]) return STATUS.EMPTY;
+      return allAvailability[person][weekend] || STATUS.EMPTY;
+    }
+
+    // Cycle through statuses
+    function cycleStatus(currentStatus) {
+      switch (currentStatus) {
+        case STATUS.EMPTY: return STATUS.YES;
+        case STATUS.YES: return STATUS.MAYBE;
+        case STATUS.MAYBE: return STATUS.NO;
+        case STATUS.NO: return STATUS.EMPTY;
+        default: return STATUS.YES;
+      }
+    }
+
+    // Calculate weekend scores
+    function calculateScores() {
+      return WEEKENDS.map(weekend => {
+        let totalScore = 0;
+        let yesCount = 0;
+        let maybeCount = 0;
+        let noCount = 0;
+
+        PARTICIPANTS.forEach(person => {
+          const status = getStatus(person, weekend);
+          totalScore += SCORES[status] || 0;
+          if (status === STATUS.YES) yesCount++;
+          else if (status === STATUS.MAYBE) maybeCount++;
+          else if (status === STATUS.NO) noCount++;
+        });
+
+        return { weekend, totalScore, yesCount, maybeCount, noCount };
+      }).sort((a, b) => b.totalScore - a.totalScore);
+    }
+
+    // Render leaderboard
+    function renderLeaderboard() {
+      const scores = calculateScores();
+      const top3 = scores.slice(0, 3);
+
+      const medals = ['🥇', '🥈', '🥉'];
+      const classes = ['gold', 'silver', 'bronze'];
+
+      if (top3.every(item => item.totalScore === 0)) {
+        leaderboard.innerHTML = `
+          <div style="text-align: center; color: #4A3F6B; padding: 20px;">
+            <div style="font-size: 2rem; margin-bottom: 10px;">🏖️</div>
+            <p>No availability submitted yet. Click cells below to get started!</p>
+          </div>
+        `;
+        return;
+      }
+
+      leaderboard.innerHTML = top3.map((item, index) => `
+        <div class="podium-item ${classes[index]}">
+          <div class="podium-rank">${medals[index]}</div>
+          <div class="podium-weekend">${item.weekend}</div>
+          <div class="podium-score">${item.totalScore} points</div>
+          <div class="podium-breakdown">
+            ${item.yesCount > 0 ? `<span style="color: #2E7D32;">${item.yesCount} yes</span>` : ''}
+            ${item.maybeCount > 0 ? `<span style="color: #F57F17;"> ${item.maybeCount} maybe</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render the grid
+    function renderGrid() {
+      const scores = calculateScores();
+      const scoreMap = {};
+      scores.forEach(s => scoreMap[s.weekend] = s);
+
+      let html = `
+        <table class="availability-grid">
+          <thead>
+            <tr>
+              <th class="name-header">Name</th>
+              ${WEEKENDS.map(w => `<th class="weekend-header">${w}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // Person rows
+      PARTICIPANTS.forEach(person => {
+        html += `<tr>`;
+        html += `<td class="name-cell">${person}</td>`;
+
+        WEEKENDS.forEach(weekend => {
+          const status = getStatus(person, weekend);
+          const icon = status === STATUS.YES ? '✓' : status === STATUS.MAYBE ? '?' : status === STATUS.NO ? '✗' : '';
+          html += `
+            <td class="status-cell" data-person="${person}" data-weekend="${weekend}">
+              <div class="status-box ${status}">${icon}</div>
+            </td>
+          `;
+        });
+
+        html += `</tr>`;
+      });
+
+      // Score row
+      html += `<tr class="score-row">`;
+      html += `<td class="name-cell">SCORE</td>`;
+      WEEKENDS.forEach(weekend => {
+        const score = scoreMap[weekend];
+        html += `<td>${score.totalScore}</td>`;
+      });
+      html += `</tr>`;
+
+      html += `</tbody></table>`;
+      gridArea.innerHTML = html;
+
+      // Add click handlers
+      document.querySelectorAll('.status-cell').forEach(cell => {
+        cell.addEventListener('click', handleCellClick);
+      });
+    }
+
+    // Handle cell click
+    async function handleCellClick(e) {
+      const cell = e.currentTarget;
+      const person = cell.dataset.person;
+      const weekend = cell.dataset.weekend;
+
+      const currentStatus = getStatus(person, weekend);
+      const newStatus = cycleStatus(currentStatus);
+
+      // Update local state
+      if (!allAvailability[person]) {
+        allAvailability[person] = {};
+      }
+
+      if (newStatus === STATUS.EMPTY) {
+        delete allAvailability[person][weekend];
+        if (Object.keys(allAvailability[person]).length === 0) {
+          delete allAvailability[person];
+        }
+      } else {
+        allAvailability[person][weekend] = newStatus;
+      }
+
+      // Update UI immediately
+      const box = cell.querySelector('.status-box');
+      box.className = `status-box ${newStatus}`;
+      box.textContent = newStatus === STATUS.YES ? '✓' : newStatus === STATUS.MAYBE ? '?' : newStatus === STATUS.NO ? '✗' : '';
+
+      // Update scores and leaderboard
+      updateScoreRow();
+      renderLeaderboard();
+
+      // Save to server
+      try {
+        const response = await fetch('/api/availability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: person,
+            weekends: allAvailability[person] || {}
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showSaveIndicator('Saved!', false);
+        } else {
+          showSaveIndicator('Error saving', true);
+        }
+      } catch (error) {
+        console.error('Save error:', error);
+        showSaveIndicator('Error saving', true);
+      }
+    }
+
+    // Update score row without full re-render
+    function updateScoreRow() {
+      const scores = calculateScores();
+      const scoreMap = {};
+      scores.forEach(s => scoreMap[s.weekend] = s);
+
+      const scoreRow = document.querySelector('.score-row');
+      if (scoreRow) {
+        const cells = scoreRow.querySelectorAll('td:not(.name-cell)');
+        WEEKENDS.forEach((weekend, index) => {
+          if (cells[index]) {
+            cells[index].textContent = scoreMap[weekend].totalScore;
+          }
+        });
+      }
+    }
+
+    // Show save indicator
+    function showSaveIndicator(message, isError) {
+      saveIndicator.textContent = message;
+      saveIndicator.classList.toggle('error', isError);
+      saveIndicator.classList.add('show');
+
+      setTimeout(() => {
+        saveIndicator.classList.remove('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

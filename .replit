@@ -1,0 +1,17 @@
+run = "npm install && node index.js"
+entrypoint = "index.js"
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-25_05"
+packages = ["nodejs-20_x"]
+
+[deployment]
+run = ["sh", "-c", "node index.js"]
+
+[agent]
+expertMode = true
+
+[[ports]]
+localPort = 3000
+externalPort = 80
