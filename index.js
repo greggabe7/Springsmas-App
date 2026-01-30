@@ -59,19 +59,32 @@ app.get('/api/availability', async (req, res) => {
   }
 });
 
-// POST user availability
+// POST user availability (single cell update)
 app.post('/api/availability', async (req, res) => {
   try {
-    const { name, weekends } = req.body;
-    if (!name) {
-      return res.status(400).json({ error: 'Name is required' });
+    const { name, weekend, status } = req.body;
+    if (!name || !weekend) {
+      return res.status(400).json({ error: 'Name and weekend are required' });
     }
 
-    // Read current data
+    // Read current data fresh from JSONBin
     let data = await getData();
 
-    // Update
-    data[name] = weekends || [];
+    // Apply single-cell delta
+    if (!status || status === '') {
+      // Remove this weekend entry
+      if (data[name]) {
+        delete data[name][weekend];
+        if (Object.keys(data[name]).length === 0) {
+          delete data[name];
+        }
+      }
+    } else {
+      if (!data[name]) {
+        data[name] = {};
+      }
+      data[name][weekend] = status;
+    }
 
     // Save back to JSONBin
     await saveData(data);

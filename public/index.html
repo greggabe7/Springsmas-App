@@ -765,14 +765,15 @@
       updateScoreRow();
       renderLeaderboard();
 
-      // Save to server
+      // Save to server (send only the single cell change)
       try {
         const response = await fetch('/api/availability', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: person,
-            weekends: allAvailability[person] || {}
+            weekend: weekend,
+            status: newStatus
           })
         });
 
