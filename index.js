@@ -23,7 +23,10 @@ async function getData() {
       }
     });
     const result = await response.json();
-    return result.record || {};
+    const record = result.record || {};
+    // Remove placeholder key used to keep JSONBin happy
+    delete record._placeholder;
+    return record;
   } catch (error) {
     console.error('Error fetching from JSONBin:', error);
     return {};
@@ -86,8 +89,9 @@ app.post('/api/availability', async (req, res) => {
       data[name][weekend] = status;
     }
 
-    // Save back to JSONBin
-    await saveData(data);
+    // JSONBin rejects empty objects, so add a placeholder if needed
+    const toSave = Object.keys(data).length === 0 ? { _placeholder: true } : data;
+    await saveData(toSave);
 
     res.json({ success: true, data });
   } catch (error) {
@@ -99,7 +103,7 @@ app.post('/api/availability', async (req, res) => {
 // Reset endpoint (for testing)
 app.post('/api/reset', async (req, res) => {
   try {
-    await saveData({});
+    await saveData({ _placeholder: true });
     res.json({ success: true, message: 'Data reset' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to reset' });
