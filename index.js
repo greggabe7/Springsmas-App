@@ -15,6 +15,7 @@ const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID;
 const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 // Helper function to fetch data from JSONBin
+// Returns { data, error } so callers can distinguish empty data from failures
 async function getData() {
   try {
     const response = await fetch(JSONBIN_URL, {
@@ -22,39 +23,45 @@ async function getData() {
         'X-Master-Key': JSONBIN_API_KEY
       }
     });
+    if (!response.ok) {
+      console.error('JSONBin GET failed with status:', response.status);
+      return { data: null, error: `JSONBin returned ${response.status}` };
+    }
     const result = await response.json();
     const record = result.record || {};
     // Remove placeholder key used to keep JSONBin happy
     delete record._placeholder;
-    return record;
+    return { data: record, error: null };
   } catch (error) {
     console.error('Error fetching from JSONBin:', error);
-    return {};
+    return { data: null, error: error.message };
   }
 }
 
 // Helper function to save data to JSONBin
 async function saveData(data) {
-  try {
-    const response = await fetch(JSONBIN_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_API_KEY
-      },
-      body: JSON.stringify(data)
-    });
-    return await response.json();
-  } catch (error) {
-    console.error('Error saving to JSONBin:', error);
-    throw error;
+  const response = await fetch(JSONBIN_URL, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': JSONBIN_API_KEY
+    },
+    body: JSON.stringify(data)
+  });
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`JSONBin PUT failed (${response.status}): ${body}`);
   }
+  return await response.json();
 }
 
 // GET all availability
 app.get('/api/availability', async (req, res) => {
   try {
-    const data = await getData();
+    const { data, error } = await getData();
+    if (error) {
+      return res.status(502).json({ error: 'Failed to fetch data from storage' });
+    }
     res.json(data);
   } catch (error) {
     console.error('GET error:', error);
@@ -70,8 +77,12 @@ app.post('/api/availability', async (req, res) => {
       return res.status(400).json({ error: 'Name and weekend are required' });
     }
 
-    // Read current data fresh from JSONBin
-    let data = await getData();
+    // Read current data fresh from JSONBin — abort if read fails
+    const { data, error } = await getData();
+    if (error) {
+      console.error('Refusing to save: could not read current data:', error);
+      return res.status(502).json({ error: 'Cannot read current data, save aborted to prevent data loss' });
+    }
 
     // Apply single-cell delta
     if (!status || status === '') {
