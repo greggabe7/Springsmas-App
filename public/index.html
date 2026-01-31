@@ -545,7 +545,27 @@
   <!-- Save Indicator -->
   <div id="saveIndicator" class="save-indicator">Saved!</div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+
   <script>
+    // ===== FIREBASE CONFIG =====
+    // Replace these values with your Firebase project config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxLy7Vb2rvKE-paKVGcb-xihye16sF8KU",
+      authDomain: "springsmas-app.firebaseapp.com",
+      databaseURL: "https://springsmas-app-default-rtdb.firebaseio.com",
+      projectId: "springsmas-app",
+      storageBucket: "springsmas-app.firebasestorage.app",
+      messagingSenderId: "841014766211",
+      appId: "1:841014766211:web:7c62c69438b9265c2189b6"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const availabilityRef = db.ref('availability');
+
     // Configuration
     const PARTICIPANTS = ['GGabe', 'Korn', 'Cardo', 'JZ', 'H', 'Rob', 'Roy', 'Steve', 'Tim', 'Arya'];
     const WEEKENDS = [
@@ -590,27 +610,19 @@
     const leaderboard = document.getElementById('leaderboard');
     const saveIndicator = document.getElementById('saveIndicator');
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      loadAllAvailability();
+    // Initialize — listen for real-time updates from Firebase
+    availabilityRef.on('value', (snapshot) => {
+      allAvailability = snapshot.val() || {};
+      renderGrid();
+      renderLeaderboard();
+    }, (error) => {
+      console.error('Firebase read error:', error);
+      gridArea.innerHTML = `
+        <div class="loading" style="color: #f44336;">
+          Error loading data. Please refresh the page.
+        </div>
+      `;
     });
-
-    // Load all availability
-    async function loadAllAvailability() {
-      try {
-        const response = await fetch('/api/availability');
-        allAvailability = await response.json();
-        renderGrid();
-        renderLeaderboard();
-      } catch (error) {
-        console.error('Load error:', error);
-        gridArea.innerHTML = `
-          <div class="loading" style="color: #f44336;">
-            Error loading data. Please refresh the page.
-          </div>
-        `;
-      }
-    }
 
     // Get status for a person/weekend
     function getStatus(person, weekend) {
@@ -733,8 +745,8 @@
       });
     }
 
-    // Handle cell click
-    async function handleCellClick(e) {
+    // Handle cell click — atomic Firebase update
+    function handleCellClick(e) {
       const cell = e.currentTarget;
       const person = cell.dataset.person;
       const weekend = cell.dataset.weekend;
@@ -742,68 +754,28 @@
       const currentStatus = getStatus(person, weekend);
       const newStatus = cycleStatus(currentStatus);
 
-      // Update local state
-      if (!allAvailability[person]) {
-        allAvailability[person] = {};
-      }
-
-      if (newStatus === STATUS.EMPTY) {
-        delete allAvailability[person][weekend];
-        if (Object.keys(allAvailability[person]).length === 0) {
-          delete allAvailability[person];
-        }
-      } else {
-        allAvailability[person][weekend] = newStatus;
-      }
-
-      // Update UI immediately
+      // Update UI immediately for responsiveness
       const box = cell.querySelector('.status-box');
       box.className = `status-box ${newStatus}`;
       box.textContent = newStatus === STATUS.YES ? '✓' : newStatus === STATUS.MAYBE ? '?' : newStatus === STATUS.NO ? '✗' : '';
 
-      // Update scores and leaderboard
-      updateScoreRow();
-      renderLeaderboard();
+      // Atomic write to Firebase — only touches this one cell
+      const cellRef = db.ref(`availability/${person}/${weekend}`);
 
-      // Save to server (send only the single cell change)
-      try {
-        const response = await fetch('/api/availability', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: person,
-            weekend: weekend,
-            status: newStatus
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          showSaveIndicator('Saved!', false);
-        } else {
-          showSaveIndicator('Error saving', true);
-        }
-      } catch (error) {
-        console.error('Save error:', error);
-        showSaveIndicator('Error saving', true);
-      }
-    }
-
-    // Update score row without full re-render
-    function updateScoreRow() {
-      const scores = calculateScores();
-      const scoreMap = {};
-      scores.forEach(s => scoreMap[s.weekend] = s);
-
-      const scoreRow = document.querySelector('.score-row');
-      if (scoreRow) {
-        const cells = scoreRow.querySelectorAll('td:not(.name-cell)');
-        WEEKENDS.forEach((weekend, index) => {
-          if (cells[index]) {
-            cells[index].textContent = scoreMap[weekend].totalScore;
-          }
-        });
+      if (newStatus === STATUS.EMPTY) {
+        cellRef.remove()
+          .then(() => showSaveIndicator('Saved!', false))
+          .catch((err) => {
+            console.error('Save error:', err);
+            showSaveIndicator('Error saving', true);
+          });
+      } else {
+        cellRef.set(newStatus)
+          .then(() => showSaveIndicator('Saved!', false))
+          .catch((err) => {
+            console.error('Save error:', err);
+            showSaveIndicator('Error saving', true);
+          });
       }
     }
 

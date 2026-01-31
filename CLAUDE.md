@@ -6,26 +6,45 @@ Group availability tracker for planning a Springsmas trip. Users click cells to 
 ## Participants
 Current list: GGabe, Korn, Cardo, JZ, H, Rob, Roy, Steve, Tim, Arya
 
-To add a new participant, edit `public/index.html` line ~550:
+To add a new participant, edit `public/index.html` and find:
 ```javascript
 const PARTICIPANTS = ['GGabe', 'Korn', ...];
 ```
 
 ## Architecture
 - **Frontend**: Static HTML with vanilla JavaScript (`public/index.html`)
-- **Backend**: Node.js/Express server (`index.js`) - acts as a proxy to JSONBin.io
-- **Data Storage**: JSONBin.io (requires API key and Bin ID as environment variables)
-- **Hosting**: Render or Replit (requires Node.js runtime)
+- **Data Storage**: Firebase Realtime Database (accessed directly from browser)
+- **Hosting**: Netlify (static site, no server needed)
+- **Real-time sync**: Firebase `onValue()` listener updates all browsers instantly
+- **Atomic writes**: Each cell click writes only that cell via `db.ref('availability/Person/Weekend').set()`
+
+## Firebase Data Structure
+```
+availability/
+  GGabe/
+    "March 7-9": "yes"
+    "April 4-6": "maybe"
+  Korn/
+    "March 14-16": "yes"
+```
 
 ## Deployment
-- **GitHub Repo**: https://github.com/greggabe7/Springsmas-App
-- **Environment Variables Needed**:
-  - `JSONBIN_API_KEY` - Your JSONBin.io master key
-  - `JSONBIN_BIN_ID` - Your bin ID from JSONBin.io
+1. Create a Firebase project at console.firebase.google.com
+2. Enable Realtime Database with permissive rules for the trusted group
+3. Copy Firebase config into `public/index.html` (replace the YOUR_* placeholders)
+4. Deploy to Netlify pointing at the `public/` directory
 
-## Future Consideration
-This app could be simplified to static HTML + Firebase + Netlify (no server needed). The current server only proxies requests to JSONBin and could be eliminated by using Firebase directly from the browser.
+## Firebase Security Rules (permissive for trusted group)
+```json
+{
+  "rules": {
+    "availability": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
+```
 
 ## Owner Preferences
 - Prefers Netlify + Firebase for simple apps (no heavy computation, minimal security needs)
-- When starting new projects, weigh pros/cons of serverless vs server-based approaches
