@@ -548,6 +548,7 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
   <script>
     // ===== FIREBASE CONFIG =====
@@ -563,6 +564,7 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.database();
     const availabilityRef = db.ref('availability');
 
@@ -610,18 +612,29 @@
     const leaderboard = document.getElementById('leaderboard');
     const saveIndicator = document.getElementById('saveIndicator');
 
-    // Initialize — listen for real-time updates from Firebase
-    availabilityRef.on('value', (snapshot) => {
-      allAvailability = snapshot.val() || {};
-      renderGrid();
-      renderLeaderboard();
-    }, (error) => {
-      console.error('Firebase read error:', error);
-      gridArea.innerHTML = `
-        <div class="loading" style="color: #f44336;">
-          Error loading data. Please refresh the page.
-        </div>
-      `;
+    // Attach real-time listener (called after auth)
+    function attachRealtimeListener() {
+      availabilityRef.on('value', (snapshot) => {
+        allAvailability = snapshot.val() || {};
+        renderGrid();
+        renderLeaderboard();
+      }, (error) => {
+        console.error('Firebase read error:', error);
+        gridArea.innerHTML = `
+          <div class="loading" style="color: #f44336;">
+            Error loading data. Please refresh the page.
+          </div>
+        `;
+      });
+    }
+
+    // Boot sequence: anonymous auth → Firebase listener
+    auth.signInAnonymously().then(() => {
+      console.log('Auth ready, uid:', auth.currentUser.uid);
+      attachRealtimeListener();
+    }).catch(err => {
+      console.warn('Auth/boot error, loading anyway:', err);
+      attachRealtimeListener();
     });
 
     // Get status for a person/weekend
